@@ -1,0 +1,171 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>回声日记</title>
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="title-wrap">
+        <div class="title" id="pageTitle">今天</div>
+        <div class="subtitle" id="pageSubtitle">记录你的一天</div>
+      </div>
+      <button class="icon-btn" id="searchToggle" aria-label="搜索">
+        <span class="icon">⌕</span>
+      </button>
+    </header>
+
+    <main class="main">
+      <section id="chatTab" class="tab-panel active">
+        <div class="chat-header">
+          <button class="primary-btn" id="generateRecordBtn">生成记录</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input">
+          <input id="chatInput" type="text" placeholder="从今天开始聊聊吧…" />
+          <button class="primary-btn" id="chatSend">发送</button>
+        </div>
+      </section>
+
+      <section id="recordsTab" class="tab-panel">
+        <div class="search-row" id="searchRow">
+          <input id="searchInput" type="search" placeholder="搜索记录或标签" />
+        </div>
+        <div id="recordsList" class="card-list"></div>
+      </section>
+
+      <section id="reviewTab" class="tab-panel">
+        <div class="range-card">
+          <div class="range-title">时间范围</div>
+          <div class="range-actions" id="rangeActions">
+            <button class="pill active" data-range="week">本周</button>
+            <button class="pill" data-range="month">本月</button>
+            <button class="pill" data-range="year">本年</button>
+            <button class="pill" data-range="custom">自定义</button>
+          </div>
+          <div class="custom-range" id="customRange">
+            <label>
+              开始
+              <input type="date" id="customStart" />
+            </label>
+            <label>
+              结束
+              <input type="date" id="customEnd" />
+            </label>
+          </div>
+          <button class="primary-btn" id="generateBtn">生成回顾</button>
+        </div>
+
+        <div class="summary-grid" id="summaryGrid">
+          <section class="summary-card">
+            <div class="summary-header">
+              <h3>这一段时间</h3>
+              <div class="summary-actions">
+                <button class="ghost-btn" id="stopSummary" hidden>终止生成</button>
+                <button class="ghost-btn" id="editSummary">编辑</button>
+              </div>
+            </div>
+            <div class="summary-text" id="summaryText" contenteditable="false"></div>
+          </section>
+
+          <section class="summary-card">
+            <h3>情绪分布</h3>
+            <div class="chart-row">
+              <div id="pieChart" class="pie"></div>
+              <ul id="pieLegend" class="legend"></ul>
+            </div>
+            <div class="filter-row" id="moodFilterRow"></div>
+          </section>
+
+          <section class="summary-card">
+            <h3>常出现的话题</h3>
+            <div id="tagCloud" class="tag-cloud"></div>
+            <div class="filter-row" id="tagFilterRow"></div>
+          </section>
+        </div>
+
+      </section>
+    </main>
+
+    <button class="fab" id="newRecordBtn" aria-label="新建记录">+</button>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="chat">聊天</button>
+      <button class="nav-item" data-tab="records">记录</button>
+      <button class="nav-item" data-tab="review">回顾</button>
+    </nav>
+  </div>
+
+  <div class="modal" id="recordModal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="ghost-btn" id="cancelRecord">取消</button>
+        <h2>新建记录</h2>
+        <button class="primary-btn" id="saveRecord">保存</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="recordText" placeholder="今天发生了什么"></textarea>
+
+        <div class="field">
+          <label>图片上传</label>
+          <input type="file" id="recordImages" accept="image/*" multiple />
+          <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <div class="field">
+          <label>心情选择</label>
+          <div class="mood-options" id="moodOptions"></div>
+          <button class="ghost-btn" id="addCustomMood">自定义情绪</button>
+        </div>
+
+        <div class="field">
+          <label>标签</label>
+          <input id="tagInput" list="tagSuggestions" placeholder="用空格分隔，最多3个标签" />
+          <datalist id="tagSuggestions"></datalist>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="detailModal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="ghost-btn" id="closeDetail">关闭</button>
+        <h2>记录详情</h2>
+        <div class="detail-actions">
+          <button class="ghost-btn" id="detailEdit">编辑</button>
+          <button class="ghost-btn danger" id="detailDelete">删除</button>
+        </div>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
+  </div>
+
+
+  <template id="cardTemplate">
+    <article class="record-card">
+      <div class="card-head">
+        <div class="mood">🙂</div>
+        <div class="card-text">
+          <p class="text"></p>
+          <div class="tag-row"></div>
+        </div>
+        <div class="thumb"></div>
+        <div class="card-menu">
+          <button class="icon-btn menu-btn" aria-label="更多">⋯</button>
+          <div class="menu">
+            <button class="menu-item" data-action="edit">编辑</button>
+            <button class="menu-item" data-action="delete">删除</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer"></div>
+    </article>
+  </template>
+
+  <script src="app.js?v=2"></script>
+</body>
+</html>
