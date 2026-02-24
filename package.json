@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "minimal-journal",
   "private": true,
   "type": "commonjs",
@@ -10,3 +10,4 @@
     "express": "^4.19.2"
   }
 }
+
